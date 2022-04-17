@@ -1,0 +1,7 @@
+/sboot-atom-congresso
+/sboot-atom-ficha
+/service-discovery
+/spring-config-server
+/spring-gateway
+.env
+.DS_Store

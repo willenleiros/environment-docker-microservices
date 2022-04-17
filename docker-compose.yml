@@ -1,0 +1,91 @@
+version: '3.9'
+
+services:
+
+  configservergit:
+    container_name: configservergit
+    hostname: configservergit
+    build:
+      context: ./spring-config-server
+      dockerfile: Dockerfile
+    image: configserver:1.0
+    restart: always
+    ports:
+      - 8888:8888
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+      - SERVER_PORT=${SERVER_PORT}
+      - SPRING_CONFIG_NAME=${SPRING_CONFIG_NAME}
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_URI=${SPRING_CLOUD_CONFIG_SERVER_GIT_URI}
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME=${SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME}
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD=${SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD}
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_BASEDIR=${SPRING_CLOUD_CONFIG_SERVER_GIT_BASEDIR}
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_CLONE-ON-START=true
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_DELETE-UNTRACKED-BRANCHES=true
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULTLABEL=${SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULTLABEL}
+
+  eureka:
+    container_name: eureka
+    hostname: eureka
+    build:
+      context: ./service-discovery
+      dockerfile: Dockerfile
+    image: eureka:1.0
+    restart: always
+    ports:
+      - 8761:8761
+  
+  gateway:
+    container_name: gateway
+    hostname: gateway
+    build:
+      context: ./spring-gateway
+      dockerfile: Dockerfile
+    image: gateway:1.0
+    restart: always
+    ports:
+      - 9999:9999
+    depends_on:
+      - configservergit
+
+  atomcongresso:
+    hostname: atomcongresso
+    build:
+      context: ./sboot-atom-congresso
+      dockerfile: Dockerfile
+    image: atomcongresso:1.0
+    restart: always
+    depends_on:
+      - configservergit
+    deploy:
+      mode: replicated
+      replicas: 3
+      endpoint_mode: vip
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 4GB
+        reservations:
+          cpus: '0.25'
+          memory: 2GB
+
+  atomficha:
+    hostname: atomficha
+    build:
+      context: ./sboot-atom-ficha
+      dockerfile: Dockerfile
+    image: atomficha:1.0
+    restart: always
+    depends_on:
+      - configservergit
+    deploy:
+      mode: replicated
+      replicas: 3
+      endpoint_mode: vip
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 4GB
+        reservations:
+          cpus: '0.25'
+          memory: 2GB
