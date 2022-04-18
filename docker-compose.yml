@@ -2,9 +2,9 @@ version: '3.9'
 
 services:
 
-  configservergit:
-    container_name: configservergit
-    hostname: configservergit
+  configserver:
+    container_name: configserver
+    hostname: configserver
     build:
       context: ./spring-config-server
       dockerfile: Dockerfile
@@ -12,17 +12,13 @@ services:
     restart: always
     ports:
       - 8888:8888
+    depends_on:
+      - eureka
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - SERVER_PORT=${SERVER_PORT}
-      - SPRING_CONFIG_NAME=${SPRING_CONFIG_NAME}
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_URI=${SPRING_CLOUD_CONFIG_SERVER_GIT_URI}
       - SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME=${SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME}
       - SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD=${SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD}
       - SPRING_CLOUD_CONFIG_SERVER_GIT_BASEDIR=${SPRING_CLOUD_CONFIG_SERVER_GIT_BASEDIR}
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_CLONE-ON-START=true
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_DELETE-UNTRACKED-BRANCHES=true
-      - SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULTLABEL=${SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULTLABEL}
 
   eureka:
     container_name: eureka
@@ -46,7 +42,9 @@ services:
     ports:
       - 9999:9999
     depends_on:
-      - configservergit
+      - eureka
+    environment:
+      - SPRING_CLOUD_CONFIG_FAIL-FAST=true
 
   atomcongresso:
     hostname: atomcongresso
@@ -56,7 +54,9 @@ services:
     image: atomcongresso:1.0
     restart: always
     depends_on:
-      - configservergit
+      - eureka
+    environment:
+      - SPRING_CLOUD_CONFIG_FAIL-FAST=true
     deploy:
       mode: replicated
       replicas: 3
@@ -77,7 +77,9 @@ services:
     image: atomficha:1.0
     restart: always
     depends_on:
-      - configservergit
+      - eureka
+    environment:
+      - SPRING_CLOUD_CONFIG_FAIL-FAST=true
     deploy:
       mode: replicated
       replicas: 3
