@@ -4,14 +4,14 @@ services:
 
   configserver:
     container_name: configserver
-    hostname: configserver
+    #hostname: idcontainer
     build:
       context: ./spring-config-server
       dockerfile: Dockerfile
     image: configserver:1.0
     restart: always
     ports:
-      - 8888:8888
+      - "8888:8888"
     depends_on:
       - eureka
     environment:
@@ -22,40 +22,53 @@ services:
 
   eureka:
     container_name: eureka
-    hostname: eureka
+    #hostname: idcontainer
     build:
       context: ./service-discovery
       dockerfile: Dockerfile
     image: eureka:1.0
     restart: always
     ports:
-      - 8761:8761
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 4GB
+        reservations:
+          cpus: '0.25'
+          memory: 2GB
   
   gateway:
     container_name: gateway
-    hostname: gateway
+    #hostname: idcontainer
     build:
       context: ./spring-gateway
       dockerfile: Dockerfile
     image: gateway:1.0
     restart: always
     ports:
-      - 9999:9999
+      - "9999:9999"
     depends_on:
       - eureka
     environment:
+      - SPRING_PROFILES_ACTIVE=service
       - SPRING_CLOUD_CONFIG_FAIL-FAST=true
 
   atomcongresso:
-    hostname: atomcongresso
     build:
       context: ./sboot-atom-congresso
       dockerfile: Dockerfile
     image: atomcongresso:1.0
     restart: always
+    ports:
+      - "8080"
     depends_on:
       - eureka
     environment:
+      - SPRING_PROFILES_ACTIVE=dev
       - SPRING_CLOUD_CONFIG_FAIL-FAST=true
     deploy:
       mode: replicated
@@ -70,12 +83,13 @@ services:
           memory: 2GB
 
   atomficha:
-    hostname: atomficha
     build:
       context: ./sboot-atom-ficha
       dockerfile: Dockerfile
     image: atomficha:1.0
     restart: always
+    ports:
+      - "8080"
     depends_on:
       - eureka
     environment:
