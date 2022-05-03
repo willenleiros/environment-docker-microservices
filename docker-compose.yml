@@ -93,6 +93,7 @@ services:
     depends_on:
       - eureka
     environment:
+      - SPRING_PROFILES_ACTIVE=dev
       - SPRING_CLOUD_CONFIG_FAIL-FAST=true
     deploy:
       mode: replicated
