@@ -3,5 +3,7 @@
 /service-discovery
 /spring-config-server
 /spring-gateway
+/authorization-server
+/resources-server
 .env
 .DS_Store
