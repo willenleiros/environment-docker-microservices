@@ -7,3 +7,4 @@
 /resources-server
 .env
 .DS_Store
+requests.txt
